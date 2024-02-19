@@ -1,0 +1,23 @@
+
+version: '1'
+
+services:
+  go-app:
+    container_name: go-app
+    build: .
+    environment:
+      DB_URL: 'host=localhost user=postgres password=3301 database=info sslmode=disable'
+    ports:
+      - "8000:8000"
+    depends_on:
+      - go_db
+  go_db:
+    container_name: go_db
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: 3301
+      POSTGRES_USER: postgres
+      POSTGRES_DB: info
+    ports:
+      - "5432:5432"
+
