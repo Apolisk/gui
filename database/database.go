@@ -1,45 +1,61 @@
 package database
 
 import (
-	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
+	"log"
+
+	"database/sql"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 type DB struct {
-	*sqlx.DB
+	*sql.DB
 }
 
-func Open(url string) (*DB, error) {
-	db, err := sqlx.Open("postgres", url)
+func Open() (*DB, error) {
+	db, err := sql.Open("sqlite3", "database/info.db")
 	if err != nil {
 		return nil, err
 	}
 	return &DB{DB: db}, nil
+
 }
 
-func (db *DB) HasUser(username string) (has bool) {
-	const query = `SELECT EXISTS (
-		SELECT 1 FROM information WHERE username = $1);`
-	_ = db.Get(&has, query, username)
-	return has
+func (db *DB) HasUser(username string) bool {
+	const query = `SELECT COUNT(*) FROM users WHERE name = $1;`
+	var count int
+	if err := db.QueryRow(query, username).Scan(&count); err != nil {
+		log.Print(err)
+		return false
+	}
+	return count > 0
 }
 
 func (db *DB) CreateUser(username, password string) error {
-	const query = `INSERT INTO information values($1, $2)`
+	const query = `INSERT INTO users values($1, $2);`
 	_, err := db.Exec(query, username, password)
-	return err
+	if err != nil {
+		return err
+	}
+	return nil
 
 }
 
-func (db *DB) ChangePassword(username, password string) error {
-	const query = `UPDATE information SET user_password = $2 WHERE username = $1`
-	_, err := db.Exec(query, username, password)
-	return err
+func (db *DB) ChangePassword(password, username string) error {
+	const query = `UPDATE users SET password = $1 WHERE name = $2;`
+	_, err := db.Exec(query, password, username)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func (db *DB) LogIn(username, password string) (has bool) {
-	const query = `SELECT EXISTS (
-		SELECT 1 FROM information WHERE username = $1 AND user_password = $2);`
-	_ = db.Get(&has, query, username, password)
-	return has
+func (db *DB) LogIn(username, password string) bool {
+	const query = `SELECT COUNT(*) FROM users WHERE name = $1 AND password = $2;`
+	var count int
+	if err := db.QueryRow(query, username, password).Scan(&count); err != nil {
+		log.Print(err)
+		return false
+	}
+	return count > 0
 }
