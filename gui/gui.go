@@ -2,6 +2,7 @@ package gui
 
 import (
 	"log"
+	"os"
 	"unicode"
 
 	"main/database"
@@ -75,6 +76,7 @@ func (a *App) about() *widget.Button {
 	about := widget.NewButton("About", func() {
 		a.showWindowText("БІ-443Б Богданович Олексій")
 	})
+
 	return about
 }
 
@@ -177,7 +179,7 @@ func (a *App) logIn() *widget.Button {
 			password := entries.Password.Text
 
 			if a.db.LogIn(username, password) {
-				a.showWindowText("Sign in as: " + username)
+				a.authorization(username)
 				return
 			}
 			a.showWindowText("Invalid credentials")
@@ -195,6 +197,57 @@ func (a *App) logIn() *widget.Button {
 		w.Show()
 	})
 	return logInBtn
+}
+
+func (a *App) authorization(username string) {
+	w := a.NewWindow(windowName)
+
+	level, err := a.db.Level(username)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	read := widget.NewButton("Read", func() {
+		data, err := os.ReadFile("file.txt")
+		if err != nil {
+			log.Print(err)
+			return
+		}
+		a.showWindowText(string(data))
+	})
+	write := widget.NewButton("Write", func() {
+		data := []byte("Hello my Username is: " + username)
+		err = os.WriteFile("file.txt", data, 0644)
+		if err != nil {
+			log.Print(err)
+			return
+		}
+		a.showWindowText("Written")
+	})
+	deleteFile := widget.NewButton("Delete", func() {
+		err = os.Remove("file.txt")
+		if err != nil {
+			log.Print(err)
+			return
+		}
+		a.showWindowText("Deleted")
+	})
+
+	content := container.NewVBox()
+	switch level {
+	case 0:
+		content = container.NewVBox(read)
+	case 1:
+		content = container.NewVBox(read, write)
+	case 2:
+		content = container.NewVBox(read, write, deleteFile)
+	default:
+		a.showWindowText("User does not exists")
+	}
+
+	w.Resize(fyne.Size{Width: 500, Height: 500})
+	w.SetContent(content)
+	w.Show()
 }
 
 func (a *App) showWindowText(text string) {

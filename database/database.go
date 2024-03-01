@@ -18,7 +18,6 @@ func Open() (*DB, error) {
 		return nil, err
 	}
 	return &DB{DB: db}, nil
-
 }
 
 func (db *DB) HasUser(username string) bool {
@@ -32,13 +31,12 @@ func (db *DB) HasUser(username string) bool {
 }
 
 func (db *DB) CreateUser(username, password string) error {
-	const query = `INSERT INTO users values($1, $2);`
+	const query = `INSERT INTO users values($1, $2, 0);`
 	_, err := db.Exec(query, username, password)
 	if err != nil {
 		return err
 	}
 	return nil
-
 }
 
 func (db *DB) ChangePassword(password, username string) error {
@@ -58,4 +56,15 @@ func (db *DB) LogIn(username, password string) bool {
 		return false
 	}
 	return count > 0
+}
+
+func (db *DB) Level(username string) (int, error) {
+	const query = `SELECT access_level from users where name = $1;`
+	row := db.QueryRow(query, username)
+	var accessLevel int
+	err := row.Scan(&accessLevel)
+	if err != nil {
+		return -1, err
+	}
+	return accessLevel, nil
 }
