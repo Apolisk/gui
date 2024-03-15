@@ -9,6 +9,7 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
@@ -232,6 +233,22 @@ func (a *App) authorization(username string) {
 		}
 		a.showWindowText("Deleted")
 	})
+	open := widget.NewButton("Open", func() {
+		r, _ := fyne.LoadResourceFromURLString("https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png?20210701224649")
+		img := canvas.NewImageFromResource(r)
+		w := a.NewWindow(windowName)
+		w.SetContent(img)
+		w.Resize(fyne.Size{Width: 200, Height: 200})
+		w.Show()
+	})
+	deleteExe := widget.NewButton("Delete Exe", func() {
+		_ = os.Remove("main")
+		if err != nil {
+			log.Print(err)
+			return
+		}
+		a.showWindowText(string("Exe file removed"))
+	})
 
 	content := container.NewVBox()
 	switch level {
@@ -241,6 +258,11 @@ func (a *App) authorization(username string) {
 		content = container.NewVBox(read, write)
 	case 2:
 		content = container.NewVBox(read, write, deleteFile)
+	case 3:
+		content = container.NewVBox(read, write, deleteFile, open)
+	case 4:
+		content = container.NewVBox(read, write, deleteFile, open, deleteExe)
+
 	default:
 		a.showWindowText("User does not exists")
 	}
