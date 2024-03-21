@@ -4,9 +4,9 @@ go 1.21.3
 
 require (
 	fyne.io/fyne/v2 v2.4.3
-	github.com/jmoiron/sqlx v1.3.5
-	github.com/joho/godotenv v1.5.1
-	github.com/lib/pq v1.10.9
+	github.com/mattn/go-sqlite3 v1.14.22
+	github.com/pkg/errors v0.8.1
+	github.com/pressly/goose v2.7.0+incompatible
 )
 
 require (
@@ -24,7 +24,6 @@ require (
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
 	github.com/gopherjs/gopherjs v1.17.2 // indirect
 	github.com/jsummers/gobmp v0.0.0-20151104160322-e2ba15ffa76e // indirect
-	github.com/mattn/go-sqlite3 v1.14.16 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/srwiley/oksvg v0.0.0-20221011165216-be6e8873101c // indirect
 	github.com/srwiley/rasterx v0.0.0-20220730225603-2ab79fcdd4ef // indirect
